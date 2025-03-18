@@ -3,33 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Todo List with Edit Option</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            margin: 5px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        ol {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #ffffff;
+            margin: 8px 0;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .edit-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-    Task: <input type="text"  id="input">
-    <button onclick="addTask()">add</button>
+    <h2>Todo List with Edit Functionality</h2>
+    <label>Task:</label>
+    <input type="text" id="input" placeholder="Enter task">
+    <button onclick="addTask()">Add</button>
 
-    <ol id="list">
-
-    </ol>
+    <ol id="list"></ol>
 
     <script>
         const input = document.getElementById('input');
         const list = document.getElementById('list');
-        let tasksCount = 0; 
+        let tasksCount = 0;
 
+        // ✅ Add a new task
         function addTask() {
+            if (input.value.trim() === "") {
+                alert("Please enter a task!");
+                return;
+            }
+
             const newLi = document.createElement('li');
-            newLi.id = "tasks = " + ++tasksCount;
-            newLi.innerHTML = input.value + '<button onclick="deleteTask(event)">Delete</button>';
+            newLi.id = "task-" + ++tasksCount;
+            
+            newLi.innerHTML = `
+                <span class="task-text">${input.value}</span>
+                <div>
+                    <button class="edit-btn" onclick="editTask(this)">Edit</button>
+                    <button class="delete-btn" onclick="deleteTask(this)">Delete</button>
+                </div>
+            `;
+            
             list.appendChild(newLi);
             input.value = "";
-
         }
 
-        function  deleteTask() {
-            console.log(event.target.parentNode.remove());
-           
+        // ✅ Delete task
+        function deleteTask(button) {
+            const li = button.parentNode.parentNode;
+            li.remove();
+        }
+
+        // ✅ Edit task
+        function editTask(button) {
+            const li = button.parentNode.parentNode;
+            const taskText = li.querySelector(".task-text");
+            
+            // Replace task text with an input field
+            const inputField = document.createElement("input");
+            inputField.type = "text";
+            inputField.value = taskText.textContent;
+            inputField.className = "edit-input";
+
+            li.replaceChild(inputField, taskText);
+
+            // Change 'Edit' button to 'Save'
+            button.textContent = "Save";
+            button.setAttribute("onclick", "saveTask(this)");
+        }
+
+        // ✅ Save edited task
+        function saveTask(button) {
+            const li = button.parentNode.parentNode;
+            const inputField = li.querySelector(".edit-input");
+
+            // Replace input field with new text content
+            const newTaskText = document.createElement("span");
+            newTaskText.className = "task-text";
+            newTaskText.textContent = inputField.value;
+
+            li.replaceChild(newTaskText, inputField);
+
+            // Change 'Save' button back to 'Edit'
+            button.textContent = "Edit";
+            button.setAttribute("onclick", "editTask(this)");
         }
     </script>
 </body>
